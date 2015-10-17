@@ -1,12 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.scrn_clearerDecs.all;
 
 entity lab3_top is
   port(KEY : in std_logic_vector(3 downto 0);
        CLOCK_50: in std_logic;
        SW : in std_logic_vector(17 downto 0);
        LEDG : out std_logic_vector(7 downto 0);
+       LEDR : out std_logic_vector(17 downto 0);
        VGA_R, VGA_G, VGA_B : out std_logic_vector(9 downto 0);
        VGA_HS              : out std_logic;
        VGA_VS              : out std_logic;
@@ -35,6 +37,7 @@ architecture impl of lab3_top is
   signal y      : std_logic_vector(6 downto 0);
   signal colour : std_logic_vector(2 downto 0);
   signal plot   : std_logic;
+  signal slowClock : unsigned(24 downto 0);
   
   begin
     
@@ -43,7 +46,7 @@ architecture impl of lab3_top is
       RESOLUTION => "160x120"
       )  ---- Sets the resolution of display (as per vga_adapter.v description)
     port map(
-      resetn    => KEY(3),
+      resetn    => KEY(0),
       clock     => CLOCK_50,
       colour    => colour,
       x         => x,
@@ -58,9 +61,9 @@ architecture impl of lab3_top is
       VGA_SYNC  => VGA_SYNC,
       VGA_CLK   => VGA_CLK
       );
-
     
-    LEDG <= (others => '1'); 
+    scrn_clr : scrn_clearer port map(CLOCK_50 => CLOCK_50), rst => not KEY(3), colour => colour, x => x, y => y, plot => plot);
+
     HEX0 <= (others => '1'); 
     HEX1 <= (others => '1'); 
     HEX2 <= (others => '1'); 
@@ -69,10 +72,9 @@ architecture impl of lab3_top is
     HEX5 <= (others => '1'); 
     HEX6 <= (others => '1');
     HEX7 <= (others => '1');
+
+    LEDG <= colour & 4d"0" & std_logic(slowClock(20));
+    LEDR <= y & 3d"0" & x;
     
-    x      <= SW(7 downto 0);
-    y      <= SW(14 downto 8);
-    colour <= SW(17 downto 15);
-    plot   <= not KEY(0);
     
 end impl; 

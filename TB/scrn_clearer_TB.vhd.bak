@@ -18,7 +18,7 @@ architecture impl of scrn_clearer_TB is
   
   begin
     
-    DUT : scrn_clearer port map(CLOCK_50 => CLOCK_50, rst => rst, color => color, x => x,
+    DUT : scrn_clearer port map(CLOCK_50 => CLOCK_50, rst => rst, colour => color, x => x,
                                 y => y, plot => plot, done => done);  
     
     process begin
@@ -30,7 +30,7 @@ architecture impl of scrn_clearer_TB is
       wait for 10 ps; 
       
       rst <= '0';
-      
+      report("Running");
       for I in 0 to 50000 loop
         
         
@@ -38,14 +38,11 @@ architecture impl of scrn_clearer_TB is
         
         CLOCK_50 <= not CLOCK_50; 
         
-        if(I = 15) then
-          wait for 5 ps;
-          rst <= '1';
-          wait for 2 ps;
-          rst <= '0';
-        end if;
-        
       end loop; 
+       report("TEST");
+      wait for 5000 ps;
+      
+      
       wait; 
     end process; 
 end impl; 

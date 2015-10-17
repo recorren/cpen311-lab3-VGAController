@@ -5,7 +5,7 @@ package scrn_clearerDecs is
   component scrn_clearer is
     port(CLOCK_50: in std_logic;
        rst : in std_logic;
-       color: out std_logic_vector(2 downto 0);
+       colour: out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
        y : out std_logic_vector(6 downto 0);
        plot : out std_logic;
@@ -24,7 +24,7 @@ use work.NbitRegDecs.all;
 entity scrn_clearer is
   port(CLOCK_50: in std_logic;
        rst : in std_logic;
-       color: out std_logic_vector(2 downto 0);
+       colour: out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
        y : out std_logic_vector(6 downto 0);
        plot : out std_logic;
@@ -38,6 +38,7 @@ architecture impl of scrn_clearer is
   signal xEqualsLimit : std_logic := '0'; 
   signal yEqualsLimit : std_logic := '0';
   signal loady : std_logic := '0';
+  signal done_internal : std_logic := '0';
   
   constant XLIMIT : integer := 159;
   constant YLIMIT : integer := 119;
@@ -49,42 +50,39 @@ architecture impl of scrn_clearer is
                    port map(D => nextX, clk => CLOCK_50, Q => currentX, rst => rst);
     
     YPOS : NbitReg generic map(y'LENGTH, 0)
-                   port map(D => nextY, clk => loady, Q => currentY, rst => rst);
+                   port map(D => nextY, clk => CLOCK_50, Q => currentY, rst => rst);
                      
     process(all) begin 
-      if(not done) then
         if(currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH))) then
           xEqualsLimit <= '1';
+          loady <= '1';
           nextX <= (others => '0');
         else
           nextX <= std_logic_vector(unsigned(currentX) + 1); 
           xEqualsLimit <= '0'; 
+          loady <= '0';
         end if;
-        
-        if(xEqualsLimit = '1' and currentX = std_logic_vector(to_unsigned(0, x'LENGTH))) then
-          loady <= '1';
-        else
-          loady <= '0'; 
-        
-      end if;
-      color <= currentX(2 downto 0); --x mod 8 is the same as taking the last 3 digits of a binary number
+
+      
     
     end process;
     
     process(all) begin
-      if(not done) then
         if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH))) then
           yEqualsLimit <= '1';
           nextY <= (others => '0');
         else 
           yEqualsLimit <= '0';
-          nextY <= std_logic_vector(unsigned(currentY) + 1);
+          
+          if(loady = '1') then
+            nextY <= std_logic_vector(unsigned(currentY) + 1);
+          else
+            nextY <= currentY;
+          end if;
         end if;
-      end if;
     end process;
-    
-    done <= xEqualsLimit and yEqualsLimit;
-    plot <= not done; 
+    colour <= currentX(2 downto 0); --x mod 8 is the same as taking the last 3 digits of a binary number
+    plot <= '1'
     x <= currentX;
     y <= currentY;
     
