@@ -62,7 +62,7 @@ architecture impl of lab3_top is
       VGA_CLK   => VGA_CLK
       );
     
-    scrn_clr : scrn_clearer port map(CLOCK_50 => CLOCK_50, rst => not KEY(3), colour => colour, x => x, y => y, plot => plot);
+    scrn_clr : scrn_clearer port map(CLOCK_50 => CLOCK_50, rst => not KEY(3), colour => colour, x => x, y => y, plot => plot, run => '1', done => open);
 
     HEX0 <= (others => '1'); 
     HEX1 <= (others => '1'); 

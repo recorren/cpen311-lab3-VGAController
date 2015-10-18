@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 package scrn_clearerDecs is
   component scrn_clearer is
     port(CLOCK_50: in std_logic;
+       run : in std_logic;
        rst : in std_logic;
        colour: out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
@@ -23,6 +24,7 @@ use work.NbitRegDecs.all;
 
 entity scrn_clearer is
   port(CLOCK_50: in std_logic;
+       run : in std_logic;
        rst : in std_logic;
        colour: out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
@@ -52,28 +54,18 @@ architecture impl of scrn_clearer is
     YPOS : NbitReg generic map(y'LENGTH, 0)
                    port map(D => nextY, clk => CLOCK_50, Q => currentY, rst => rst);
                      
-    process(all) begin 
-        if(currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH))) then
-          xEqualsLimit <= '1';
-          loady <= '1';
-          nextX <= (others => '0');
-        else
-          nextX <= std_logic_vector(unsigned(currentX) + 1); 
-          xEqualsLimit <= '0'; 
-          loady <= '0';
-        end if;
-
-      
-    
+    process(all) begin
+      if(currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH)) or run = '0') then
+        nextX <= (others => '0');
+      else
+        nextX <= std_logic_vector(unsigned(currentX) + 1); 
+      end if;
     end process;
     
     process(all) begin
         if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH))) then
-          yEqualsLimit <= '1';
           nextY <= (others => '0');
         else 
-          yEqualsLimit <= '0';
-          
           if(loady = '1') then
             nextY <= std_logic_vector(unsigned(currentY) + 1);
           else
@@ -81,8 +73,17 @@ architecture impl of scrn_clearer is
           end if;
         end if;
     end process;
+    
+    
     colour <= currentX(2 downto 0); --x mod 8 is the same as taking the last 3 digits of a binary number
-    plot <= '1'
+    plot <= run;
+    
+    xEqualsLimit <= '1' when currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH) else '0';
+    yEqualsLimit <= '1' when currentY = std_logic_vector(to_unsigned(YLIMIT, y'LENGTH) else '0';
+    
+    loady <= xEqualsLimit;
+    done <= xEqualsLimit and yEqualsLimit;
+    
     x <= currentX;
     y <= currentY;
     
