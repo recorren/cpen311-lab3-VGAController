@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.scrn_clearerDecs.all;
+use work.VGA_controllerFSMdecs.all;
 
 entity lab3_top is
   port(KEY : in std_logic_vector(3 downto 0);
@@ -40,7 +41,7 @@ architecture impl of lab3_top is
   signal slowClock : unsigned(24 downto 0);
   
   begin
-    
+    FSM : VGA_controllerFSM port map(CLOCK_50 => CLOCK_50, rst => not KEY(3), x => x, y => y, colour => colour, plot => plot);
     vga_u0 : vga_adapter
     generic map(
       RESOLUTION => "160x120"
@@ -62,7 +63,7 @@ architecture impl of lab3_top is
       VGA_CLK   => VGA_CLK
       );
     
-    scrn_clr : scrn_clearer port map(CLOCK_50 => CLOCK_50, rst => not KEY(3), colour => colour, x => x, y => y, plot => plot, run => '1', done => open);
+
 
     HEX0 <= (others => '1'); 
     HEX1 <= (others => '1'); 
@@ -73,8 +74,7 @@ architecture impl of lab3_top is
     HEX6 <= (others => '1');
     HEX7 <= (others => '1');
 
-    LEDG <= colour & 4d"0" & std_logic(slowClock(20));
-    LEDR <= y & 3d"0" & x;
+    
     
     
 end impl; 

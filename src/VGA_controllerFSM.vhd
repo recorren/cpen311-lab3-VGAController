@@ -1,0 +1,158 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package VGA_controllerFSMdecs is
+  component VGA_controllerFSM is
+    port(
+       CLOCK_50 : in std_logic;
+       rst : in std_logic;
+       x : out std_logic_vector(7 downto 0);
+       y : out std_logic_vector(6 downto 0);
+       colour: out std_logic_vector(2 downto 0);
+       plot : out std_logic);
+  end component; 
+end package;
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.NbitRegDecs.all;
+use work.scrn_clearerDecs.all;
+use work.line_drawerDecs.all;
+use work.lineGetterDecs.all;
+
+entity VGA_controllerFSM is
+  port(
+       CLOCK_50 : in std_logic;
+       rst : in std_logic;
+       x : out std_logic_vector(7 downto 0);
+       y : out std_logic_vector(6 downto 0);
+       colour: out std_logic_vector(2 downto 0);
+       plot : out std_logic);
+       
+end VGA_controllerFSM; 
+
+architecture impl of VGA_controllerFSM is
+  
+  
+  
+  constant NUMSTATESBITS : integer := 3;
+  
+  constant CLRSTATE : std_logic_vector(NUMSTATESBITS-1 downto 0) := 3d"0";
+  constant LINERUN : std_logic_vector(NUMSTATESBITS-1 downto 0) := 3d"1";
+  constant LINEWAIT : std_logic_vector(NUMSTATESBITS-1 downto 0) := 3d"2";
+  
+  signal currState : std_logic_vector(NUMSTATESBITS-1 downto 0);
+  signal nextState : std_logic_vector(NUMSTATESBITS-1 downto 0); 
+  
+  signal clrDone : std_logic := '0';
+  signal lineDone : std_logic := '0';
+  
+  signal runClr : std_logic := '0';
+  signal runLine : std_logic := '0';  
+  
+  signal x0, x1 : std_logic_vector(7 downto 0) := (others => '0');
+  signal y0, y1 : std_logic_vector(6 downto 0) := (others => '0'); 
+  
+  signal lineX, clrX : std_logic_vector(7 downto 0) := (others => '0');                  
+  signal lineY, clrY : std_logic_vector(6 downto 0) := (others => '0');   
+  
+  signal linePlot, clrPlot : std_logic; 
+  
+  signal clrColour, lineColour : std_logic_vector(2 downto 0); 
+  
+  signal waitDone : std_logic; 
+  
+  signal slowClock : unsigned(25 downto 0) := (others => '0'); 
+  signal slowClockB : std_logic;
+  
+  
+  
+  begin 
+    STATE : NbitReg generic map(n => NUMSTATESBITS, def => 0)
+                       port map(clk => CLOCK_50, rst => rst, D => nextState, Q => currState);
+      
+
+                         
+                         
+    LINER : line_drawer port map(CLOCK_50 => CLOCK_50, run => runLine, rst => rst, 
+                                 x => lineX, y => lineY, 
+                                 x0 => x0, y0 => y0,
+                                 x1 => x1, y1 => y1,
+                                 plot => linePlot, done => lineDone);  
+                                 
+    CLEARER : scrn_clearer port map(CLOCK_50 => CLOCK_50, run => runClr, colour => clrColour, 
+                                    x => clrX, y => clrY, plot => clrPlot, done => clrDone, rst => rst);
+                                    
+    LINEG : lineGetter port map(slow_clock => slowClockB, colour => lineColour, x0 => x0, y0 => y0, x1 => x1, y1 => y1, rst => rst); 
+    
+    process(all) begin
+      if(currState = CLRSTATE) then
+        if(clrDone = '1') then
+          nextState <= LINERUN;
+        else
+          nextState <= currState;
+        end if;
+      elsif(currState = LINERUN) then
+        
+        if(lineDone = '1') then
+          nextState <= LINEWAIT;
+        else
+          nextState <= currState;
+        end if;
+      elsif(currstate = LINEWAIT) then
+        if(slowClockB = '1') then
+          nextState <= CLRSTATE;
+        else
+          nextState <= currState;
+        end if;
+      else
+        nextState <= CLRSTATE;
+      end if;
+    end process; 
+    
+    
+    
+    process(all) begin
+      
+      if(currState = CLRSTATE) then
+        runClr <= '1';
+        runLine <= '0';
+        
+        x <= clrX;
+        y <= clrY;
+        plot <= clrPlot;
+        colour <= clrColour; 
+      
+      elsif(currState = LINERUN) then
+        runClr <= '0';
+        runLine <= '1'; 
+        
+        x <= lineX;
+        y <= lineY;
+        plot <= linePlot; 
+        colour <= lineColour;
+        
+      else 
+        x <= (others => '-');
+        y <= (others => '-');
+        plot <= '0';
+        colour <= (others => '-'); 
+        runClr <= '0';
+        runLine <= '0';
+      end if;
+    end process;
+    
+    process(CLOCK_50) begin
+      if(rising_edge(CLOCK_50)) then
+        if(currState = LINEWAIT) then
+          slowClock <= slowClock + 1;
+        else
+          slowClock <= (others => '0');
+        end if; 
+      end if;  
+    
+    end process; 
+    
+    slowClockB <= slowClock(22);
+end impl;
