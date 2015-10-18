@@ -40,6 +40,7 @@ architecture impl of scrn_clearer is
   signal xEqualsLimit : std_logic := '0'; 
   signal yEqualsLimit : std_logic := '0';
   signal loady : std_logic := '0';
+  signal done_internal : std_logic := '0';
   
   constant XLIMIT : integer := 159;
   constant YLIMIT : integer := 119;
@@ -62,7 +63,7 @@ architecture impl of scrn_clearer is
     end process;
     
     process(all) begin
-        if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH)) and xEqualsLimit = '1') then
+        if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH))) then
           nextY <= (others => '0');
         else 
           if(loady = '1') then

@@ -6,6 +6,7 @@ package line_drawerDecs is
     port(CLOCK_50 : in std_logic;
        run : in std_logic;
        rst : in std_logic;
+       colour : out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
        y : out std_logic_vector(6 downto 0); 
        
@@ -26,6 +27,7 @@ entity line_drawer is
   port(CLOCK_50 : in std_logic;
        run : in std_logic;
        rst : in std_logic;
+       colour : out std_logic_vector(2 downto 0);
        x : out std_logic_vector(7 downto 0);
        y : out std_logic_vector(6 downto 0); 
        

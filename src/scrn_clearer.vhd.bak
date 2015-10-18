@@ -63,7 +63,7 @@ architecture impl of scrn_clearer is
     end process;
     
     process(all) begin
-        if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH)) and xEqualsLimit = '1') then
+        if(currentY =  std_logic_vector(to_unsigned(YLIMIT, y'LENGTH))) then
           nextY <= (others => '0');
         else 
           if(loady = '1') then
@@ -78,8 +78,8 @@ architecture impl of scrn_clearer is
     colour <= currentX(2 downto 0); --x mod 8 is the same as taking the last 3 digits of a binary number
     plot <= run;
     
-    xEqualsLimit <= '1' when currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH)) else '0';
-    yEqualsLimit <= '1' when currentY = std_logic_vector(to_unsigned(YLIMIT, y'LENGTH)) else '0';
+    xEqualsLimit <= '1' when currentX = std_logic_vector(to_unsigned(XLIMIT, x'LENGTH) else '0';
+    yEqualsLimit <= '1' when currentY = std_logic_vector(to_unsigned(YLIMIT, y'LENGTH) else '0';
     
     loady <= xEqualsLimit;
     done <= xEqualsLimit and yEqualsLimit;
