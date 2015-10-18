@@ -52,7 +52,7 @@ architecture impl of line_drawer is
   
   begin
     
-    ERRREG : NbitReg generic map(x'LENGTH)
+    ERRREG : NbitReg generic map(x'LENGTH+1)
                     port map(clk => CLOCK_50, rst => rst, D => std_logic_vector(nextErr), signed(Q) => (currErr));
     
     X0REG : NbitReg generic map(x'LENGTH)
