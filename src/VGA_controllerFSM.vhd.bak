@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 package VGA_controllerFSMdecs is
   component VGA_controllerFSM is
-    port(
+    port(colourSel : in std_logic;
+       slow_clockLED : out std_logic;
        CLOCK_50 : in std_logic;
        rst : in std_logic;
        x : out std_logic_vector(7 downto 0);
@@ -22,7 +23,8 @@ use work.line_drawerDecs.all;
 use work.lineGetterDecs.all;
 
 entity VGA_controllerFSM is
-  port(
+  port(colourSel : in std_logic;
+       slow_clockLED : out std_logic;
        CLOCK_50 : in std_logic;
        rst : in std_logic;
        x : out std_logic_vector(7 downto 0);
@@ -122,7 +124,13 @@ architecture impl of VGA_controllerFSM is
         x <= clrX;
         y <= clrY;
         plot <= clrPlot;
-        colour <= clrColour; 
+        
+        if(colourSel = '0') then
+        
+          colour <= "000"; 
+        else
+          colour <= lineColour;
+        end if;
       
       elsif(currState = LINERUN) then
         runClr <= '0';
@@ -138,6 +146,8 @@ architecture impl of VGA_controllerFSM is
         y <= (others => '-');
         plot <= '0';
         colour <= (others => '-'); 
+        runClr <= '0';
+        runLine <= '0';
       end if;
     end process;
     
@@ -152,5 +162,6 @@ architecture impl of VGA_controllerFSM is
     
     end process; 
     
-    slowClockB <= slowClock(22);
+    slowClockB <= slowClock(25);
+    slow_clockLED <= slowClockB;
 end impl;

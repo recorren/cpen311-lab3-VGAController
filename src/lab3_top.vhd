@@ -38,10 +38,10 @@ architecture impl of lab3_top is
   signal y      : std_logic_vector(6 downto 0);
   signal colour : std_logic_vector(2 downto 0);
   signal plot   : std_logic;
-  signal slowClock : unsigned(24 downto 0);
+  signal slow_clockLED: std_logic;
   
   begin
-    FSM : VGA_controllerFSM port map(CLOCK_50 => CLOCK_50, rst => not KEY(3), x => x, y => y, colour => colour, plot => plot);
+    FSM : VGA_controllerFSM port map(CLOCK_50 => CLOCK_50, slow_clockLED => slow_clockLED, rst => not KEY(3), x => x, y => y, colour => colour, plot => plot, colourSel => SW(0));
     vga_u0 : vga_adapter
     generic map(
       RESOLUTION => "160x120"
@@ -63,8 +63,9 @@ architecture impl of lab3_top is
       VGA_CLK   => VGA_CLK
       );
     
-
-
+    LEDG <= (0 => slow_clockLED, others => '0');
+    LEDR <= (others => '0');
+    
     HEX0 <= (others => '1'); 
     HEX1 <= (others => '1'); 
     HEX2 <= (others => '1'); 
