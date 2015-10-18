@@ -38,19 +38,21 @@ end entity;
 
 architecture impl of line_drawer is
   
-  signal currErr : signed(x'LENGTH-1 downto 0) := (others => '0');  
-  signal nextErr : signed(x'LENGTH-1 downto 0) := (others => '0'); 
+  signal currErr : signed(x'LENGTH downto 0) := (others => '0');  
+  signal nextErr : signed(x'LENGTH downto 0) := (others => '0'); 
   signal currx0, nextx0: unsigned(x'LENGTH-1 downto 0) := (others => '0');
-  signal sx, dx : signed(x'LENGTH-1 downto 0) := (others => '0');
+  signal sx : signed(x'LENGTH-1 downto 0) := (others => '0');
+  signal dx : signed(x'LENGTH downto 0) := (others => '0');
   signal curry0, nexty0 : unsigned(y'LENGTH-1 downto 0) := (others => '0');
-  signal sy, dy : signed(y'LENGTH-1 downto 0) := (others => '0');
-  signal err2 : signed((x'LENGTH) downto 0);
+  signal sy : signed(y'LENGTH-1 downto 0) := (others => '0');
+  signal dy : signed(y'LENGTH downto 0) := (others => '0');
+  signal err2 : signed((x'LENGTH + 1) downto 0);
   
   
   
   begin
     
-    ERRREG : NbitReg generic map(x'LENGTH)
+    ERRREG : NbitReg generic map(x'LENGTH+1)
                     port map(clk => CLOCK_50, rst => rst, D => std_logic_vector(nextErr), signed(Q) => (currErr));
     
     X0REG : NbitReg generic map(x'LENGTH)
@@ -68,15 +70,15 @@ architecture impl of line_drawer is
     
     err2 <= currErr & '0'; --err2 = err*2
     
-    dx <= (abs(signed(x1) - signed(x0)));
-    dy <= (abs(signed(y1) - signed(y0)));
+    dx <= abs(signed('0' & x1) - signed('0' & x0));
+    dy <= abs(signed('0' & y1) - signed('0' & y0));
     
     x <= std_logic_vector(currx0);
     y <= std_logic_vector(curry0); 
     
     process(all) 
-      variable newErrTemp : signed(x'LENGTH-1 downto 0) := (others => '0');
-      variable negativeDy : signed(y'LENGTH-1 downto 0) := (others => '0');
+      variable newErrTemp : signed(x'LENGTH downto 0) := (others => '0');
+      variable negativeDy : signed(y'LENGTH downto 0) := (others => '0');
       variable newy0Temp : unsigned(y'LENGTH-1 downto 0) := (others => '0');
       variable newx0Temp : unsigned(x'LENGTH-1 downto 0) := (others => '0'); 
         

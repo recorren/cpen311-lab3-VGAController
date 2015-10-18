@@ -11,7 +11,6 @@ architecture impl of line_drawerTB is
   signal CLOCK_50 : std_logic := '0';
   signal run : std_logic;
   signal rst : std_logic;
-  signal colour : std_logic_vector(2 downto 0);
   signal x : std_logic_vector(7 downto 0);
   signal y : std_logic_vector(6 downto 0); 
        
@@ -25,7 +24,7 @@ architecture impl of line_drawerTB is
   
   begin
     
-    DUT : line_drawer port map(CLOCK_50 => CLOCK_50, run => run, rst => rst, colour => colour, x=>x, y=>y, x0 => x0, x1 => x1,
+    DUT : line_drawer port map(CLOCK_50 => CLOCK_50, run => run, rst => rst, x=>x, y=>y, x0 => x0, x1 => x1,
                                y0 => y0, y1 => y1, plot => plot, done => done);
     process begin
       
@@ -38,11 +37,17 @@ architecture impl of line_drawerTB is
       wait for 5 ps;
       
       run <= '0'; 
-      x0 <= 8d"11";
-      x1 <= 8d"1";
+     -- x0 <= 8d"0";
+     -- x1 <= 8d"159";
       
-      y0 <= 7d"5";
-      y1 <= 7d"1";
+     -- y0 <= 7d"8";
+     -- y1 <= 7d"112";
+     
+      x0 <= 8d"1";
+      x1 <= 8d"11";
+      
+      y0 <= 7d"1";
+      y1 <= 7d"5";
       
       wait for 5 ps;
       
