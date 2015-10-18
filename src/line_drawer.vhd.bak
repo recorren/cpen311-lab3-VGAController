@@ -89,7 +89,8 @@ architecture impl of line_drawer is
         newErrTemp := currErr;
         negativeDy := (not dy) + 1; --two's complement
         newx0Temp := currx0;
-      
+        newy0Temp := curry0;
+        
         if(err2 > negativeDy) then
           newErrTemp := newErrTemp - dy;
           newx0Temp := currx0 + (unsigned(sx));
