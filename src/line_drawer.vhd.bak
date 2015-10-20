@@ -48,6 +48,7 @@ architecture impl of line_drawer is
   signal dy : signed(y'LENGTH downto 0) := (others => '0');
   signal err2 : signed((x'LENGTH + 1) downto 0);
   
+  signal internal_done : std_logic := '0';
   
   
   begin
@@ -61,10 +62,10 @@ architecture impl of line_drawer is
     Y0REG : NbitReg generic map(y'LENGTH)
                     port map(clk => CLOCK_50, rst => rst, D => std_logic_vector(nexty0), unsigned(Q) => (curry0));
                       
-                      
-    done <= '1' when std_logic_vector(currx0) = x1 and std_logic_vector(curry0) = y1 else '0';
-    plot <= not done;
-    
+
+    done <= internal_done;
+    plot <= not internal_done;
+    internal_done <= '1' when std_logic_vector(currx0) = std_logic_vector(x1) and std_logic_vector(curry0) = y1 else '0';
     sx <= to_signed(1, x'LENGTH) when x0 < x1 else (others => ('1'));
     sy <= to_signed(1, y'LENGTH) when y0 < y1 else (others => ('1'));
     

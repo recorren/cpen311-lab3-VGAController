@@ -64,8 +64,8 @@ architecture impl of line_drawer is
                       
 
     done <= internal_done;
-    plot <= not internal_done;
-    internal_done <= '1' when std_logic_vector(currx0) = x1 and std_logic_vector(curry0) = y1 else '0';
+    plot <= '1';
+    internal_done <= '1' when std_logic_vector(currx0) = std_logic_vector(x1) and std_logic_vector(curry0) = y1 else '0';
     sx <= to_signed(1, x'LENGTH) when x0 < x1 else (others => ('1'));
     sy <= to_signed(1, y'LENGTH) when y0 < y1 else (others => ('1'));
     
